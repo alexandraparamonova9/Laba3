@@ -1,42 +1,42 @@
-from typing import Dict, Union, Optional
+from typing import Callable, Dict, List
 
 
-TreeNode = Dict[str, Union[int, "TreeNode", None]]
+def binary_tree(
+    height: int,
+    root: int,
+    left_leaf : Callable[[int], int] = lambda x: 2 - (x - 1),
+    right_leaf: Callable[[int], int] = lambda x: x * 2
+) -> Dict[str, List]:
+    """
+    Рекурсивно создаёт бинарное дерево в виде словаря.
+
+    Каждый узел дерева представлен в виде:
+        {"значение_узла": [левое_поддерево, правое_поддерево]}
+
+    Параметры:
+        height (int): Высота дерева — количество шагов рекурсии.
+                      Если height = 0, создаётся только корень.
+        root (int): Начальное значение (корень дерева).
+        left_leaf(Callable[[int], int]): Функция для вычисления левого потомка.
+        right_leaf (Callable[[int], int]): Функция для вычисления правого потомка.
+
+    Возвращает:
+        Dict[str, List]: Словарь, представляющий бинарное дерево.
+                         Ключ — строковое значение корня,
+                         значение — список потомков (поддеревьев).
+    """
+    # Высота 0: только корень
+    if height == 0:
+        return {str(root): []}
+
+    # Рекурсивное построение поддеревьев
+    left = binary_tree(height - 1, left_leaf(root), left_leaf, right_leaf)
+    right = binary_tree(height - 1, right_leaf(root), left_leaf, right_leaf)
+
+    # Возвращаем текущий уровень дерева
+    return {str(root): [left, right]}
 
 
-def gen_bin_tree(height: int, root: int) -> Optional[TreeNode]:
-    '''
-    Рекурсивно строит бинарное дерево в виде словаря.
-
-    Каждый узел дерева имеет ключи:
-        value: значение узла
-        left: левый потомок
-        right: правый потомок
-
-    Левый и правый потомок вычисляются по формулам:
-        left  = 2 - (root - 1)
-        right = root * 2
-        height (int): Высота дерева (количество уровней).
-        root (int): Значение в корне дерева.
-        Optional[TreeNode]: Словарь, представляющий бинарное дерево,
-                            или None, если высота дерева <= 0.
-
-        >>> gen_bin_tree(2, 14)
-        {
-            'value': 14,
-            'left': {'value': -11, 'left': None, 'right': None},
-            'right': {'value': 28, 'left': None, 'right': None}
-        }
-    '''
-    if height <= 0:
-        return None
-
-    left_val = 2 - (root - 1)
-    right_val = root * 2
-
-    return {
-        "value": root,
-        "left": gen_bin_tree(height - 1, left_val),
-        "right": gen_bin_tree(height - 1, right_val),
-    }
-
+if __name__ == "__main__":
+    tree = binary_tree(4, 14, left_leaf=lambda x: 2 - (x - 1), right_leaf=lambda x: x * 2)
+    print(tree)
